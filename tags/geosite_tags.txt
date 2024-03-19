@@ -8,8 +8,4 @@ win-update
 private
 china-list
 gfw
-category-public-tracker
-category-pt
-xbox
-googlefcm
 
