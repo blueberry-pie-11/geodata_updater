@@ -1,0 +1,2 @@
+# geodata_updater
+自动下载geoip和geosite，并根据tag导出文本文件，用于mosdns使用
