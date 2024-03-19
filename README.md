@@ -6,6 +6,6 @@
 ##2.tags.txt文件中最后一行必须回车，使光标进入下一行
 
 ##3.设置crontab -e
-...
+```
     0 */12 * * *  cd /docker/geodata_updater/data/ && bash updater.sh
-...
+```
