@@ -187,6 +187,7 @@ function get_tags() {
 # starting updater...
 #
 #
+echo "===============================================" >>$LOG_FILE
 echo "$(date +'%Y-%m-%d %H:%M:%S'): starting updater..." >>$LOG_FILE
 create_dir
 get_tags
@@ -197,30 +198,36 @@ get_tags
 #
 # 更新geoip
 check_update "geoip" "$GEOIP_SHA_DL_URL"
-if [ $? -eq 1 ]; then
+local geoip_rcode=$?
+if [ $geoip_rcode -eq 1 ]; then
     download_geodata "geoip" "$GEOIP_DL_URL"
     unpack_geodata "geoip"
 fi
 
 # 更新geosite
 check_update "geosite" "$GEOSITE_SHA_DL_URL"
-if [ $? -eq 1 ]; then
+local geosite_rcode=$?
+if [ $geosite_rcode -eq 1 ]; then
     download_geodata "geosite" "$GEOSITE_DL_URL"
     unpack_geodata "geosite"
 fi
 
-# 覆盖目录geo_set下geo文件，删除rules下临时文件
-echo "[NOTICE] copy geo files to geo_set" >>$LOG_FILE
-cp $RULES_DIR/*.txt $GEO_SET_DIR/ -Rf
-# rm -rf $RULES_DIR/*.txt
+# 第三方mosdns调用
+if [ $geoip_rcode -eq 1 ] || [ $geosite_rcode -eq 1 ]; then
+    # geoip or geosite 导出文件需要更新
+    # 覆盖目录geo_set下geo文件
+    echo "[NOTICE] copy geo files to geo_set" >>$LOG_FILE
+    cp $RULES_DIR/*.txt $GEO_SET_DIR/ -Rf
 
-# 重启mosdns
-echo "[NOTICE] restart mosdns" >>$LOG_FILE
-docker restart mosdns
+    # 重启mosdns
+    echo "[NOTICE] restart mosdns" >>$LOG_FILE
+    docker restart mosdns
+else
+    echo "[NOTICE] mosdns's geo files not need update" >>$LOG_FILE
+fi
 
 echo "$(date +'%Y-%m-%d %H:%M:%S'): updater finished!" >>$LOG_FILE
 echo "===============================================" >>$LOG_FILE
 echo "" >>$LOG_FILE
 echo "" >>$LOG_FILE
 echo "" >>$LOG_FILE
-echo "===============================================" >>$LOG_FILE
